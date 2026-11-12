@@ -57,6 +57,8 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     // ViewModel for Compose screens (MVVM)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    // Navigation between the Dashboard, List and Add/Edit screens
+    implementation(libs.androidx.navigation.compose)
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
