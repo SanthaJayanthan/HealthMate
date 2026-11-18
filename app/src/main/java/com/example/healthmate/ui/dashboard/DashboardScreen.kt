@@ -6,6 +6,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -19,14 +20,13 @@ import com.example.healthmate.ui.theme.CaloriesColor
 import com.example.healthmate.ui.theme.StepsColor
 import com.example.healthmate.ui.theme.WaterColor
 
-// Daily targets used for the progress bars
-private const val STEPS_GOAL = 10_000
-private const val CALORIES_GOAL = 500
-private const val WATER_GOAL = 2_500
-
 // Dashboard: shows today's totals as three colour-coded cards
 @Composable
-fun DashboardScreen(viewModel: DashboardViewModel, modifier: Modifier = Modifier) {
+fun DashboardScreen(
+    viewModel: DashboardViewModel,
+    onEditGoals: () -> Unit,               // opens the Goals screen
+    modifier: Modifier = Modifier
+) {
     // collectAsState turns the ViewModel's flow into state; the screen redraws when it changes
     val state by viewModel.uiState.collectAsState()
 
@@ -37,14 +37,25 @@ fun DashboardScreen(viewModel: DashboardViewModel, modifier: Modifier = Modifier
             .verticalScroll(rememberScrollState()),   // scrolls on small screens
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Screen title and today's date
-        Text("HealthMate", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        // Screen title on the left, the "Edit goals" button on the right
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text("HealthMate", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+            TextButton(onClick = onEditGoals) {
+                Icon(Icons.Filled.Settings, contentDescription = null)
+                Spacer(Modifier.width(4.dp))
+                Text("Edit goals")
+            }
+        }
         Text("Today: ${state.date}", style = MaterialTheme.typography.titleMedium)
 
-        // One card per metric
-        MetricCard("Steps", state.steps, STEPS_GOAL, "steps", Icons.AutoMirrored.Filled.DirectionsWalk, StepsColor)
-        MetricCard("Calories burned", state.calories, CALORIES_GOAL, "kcal", Icons.Filled.LocalFireDepartment, CaloriesColor)
-        MetricCard("Water intake", state.water, WATER_GOAL, "ml", Icons.Filled.WaterDrop, WaterColor)
+        // One card per metric, each with the user's own goal
+        MetricCard("Steps", state.steps, state.stepsGoal, "steps", Icons.AutoMirrored.Filled.DirectionsWalk, StepsColor)
+        MetricCard("Calories burned", state.calories, state.caloriesGoal, "kcal", Icons.Filled.LocalFireDepartment, CaloriesColor)
+        MetricCard("Water intake", state.water, state.waterGoal, "ml", Icons.Filled.WaterDrop, WaterColor)
     }
 }
 

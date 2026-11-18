@@ -19,6 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.healthmate.data.local.GoalPreferences
 import com.example.healthmate.data.repository.HealthRepository
 import com.example.healthmate.ui.HealthViewModelFactory
 import com.example.healthmate.ui.addedit.AddEditScreen
@@ -26,6 +27,9 @@ import com.example.healthmate.ui.addedit.AddEditViewModel
 import com.example.healthmate.ui.addedit.AddEditViewModelFactory
 import com.example.healthmate.ui.dashboard.DashboardScreen
 import com.example.healthmate.ui.dashboard.DashboardViewModel
+import com.example.healthmate.ui.goals.GoalsScreen
+import com.example.healthmate.ui.goals.GoalsViewModel
+import com.example.healthmate.ui.goals.GoalsViewModelFactory
 import com.example.healthmate.ui.records.RecordListScreen
 import com.example.healthmate.ui.records.RecordListViewModel
 import kotlinx.coroutines.launch
@@ -34,6 +38,7 @@ import kotlinx.coroutines.launch
 object Routes {
     const val DASHBOARD = "dashboard"
     const val RECORDS = "records"
+    const val GOALS = "goals"
     const val ADD_EDIT = "addedit/{recordId}"   // {recordId} is filled in when navigating
 
     // Builds the address for the form: -1 means "new record"
@@ -45,7 +50,7 @@ private data class BottomItem(val route: String, val label: String, val icon: Im
 
 // The whole app UI: bottom bar, add button, pop-up messages and the screens
 @Composable
-fun HealthApp(repository: HealthRepository) {
+fun HealthApp(repository: HealthRepository, goalPreferences: GoalPreferences) {
     val navController = rememberNavController()
     // Which screen is showing right now
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -53,8 +58,10 @@ fun HealthApp(repository: HealthRepository) {
     // The bottom bar and add button appear only on the two main screens
     val onMainScreen = currentRoute == Routes.DASHBOARD || currentRoute == Routes.RECORDS
 
-    // One factory shared by the ViewModels that only need the repository
-    val factory = remember(repository) { HealthViewModelFactory(repository) }
+    // One factory shared by the ViewModels that need the repository and goals
+    val factory = remember(repository, goalPreferences) {
+        HealthViewModelFactory(repository, goalPreferences)
+    }
 
     // Holds the pop-up message currently being shown (the "snackbar")
     val snackbarHostState = remember { SnackbarHostState() }
@@ -110,10 +117,10 @@ fun HealthApp(repository: HealthRepository) {
             startDestination = Routes.DASHBOARD,
             modifier = Modifier.padding(innerPadding)
         ) {
-            // Screen 1: Dashboard
+            // Screen 1: Dashboard; "Edit goals" opens the Goals screen
             composable(Routes.DASHBOARD) {
                 val vm: DashboardViewModel = viewModel(factory = factory)
-                DashboardScreen(vm)
+                DashboardScreen(vm, onEditGoals = { navController.navigate(Routes.GOALS) })
             }
             // Screen 2: Records list; Edit opens the form, delete shows a pop-up message
             composable(Routes.RECORDS) {
@@ -140,6 +147,18 @@ fun HealthApp(repository: HealthRepository) {
                     onSaved = { wasEditing ->
                         navController.popBackStack()                  // leave the form
                         showMessage(if (wasEditing) "Record updated" else "Record added")
+                    }
+                )
+            }
+            // Screen 4: Goals form
+            composable(Routes.GOALS) {
+                val vm: GoalsViewModel = viewModel(factory = GoalsViewModelFactory(goalPreferences))
+                GoalsScreen(
+                    viewModel = vm,
+                    onBack = { navController.popBackStack() },       // back arrow: no message
+                    onSaved = {
+                        navController.popBackStack()                  // return to the Dashboard
+                        showMessage("Goals saved")
                     }
                 )
             }
