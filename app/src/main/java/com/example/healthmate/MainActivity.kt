@@ -1,5 +1,9 @@
 package com.example.healthmate
 
+import androidx.lifecycle.lifecycleScope
+import com.example.healthmate.data.local.AppDatabase
+import com.example.healthmate.data.repository.HealthRepository
+import kotlinx.coroutines.launch
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,6 +20,9 @@ import com.example.healthmate.ui.theme.HealthMateTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val database = AppDatabase.getDatabase(applicationContext)
+        val repository = HealthRepository(database.healthRecordDao())
+        lifecycleScope.launch { repository.seedIfEmpty() }
         enableEdgeToEdge()
         setContent {
             HealthMateTheme {
