@@ -19,7 +19,6 @@ import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -59,7 +58,6 @@ fun DashboardScreen(viewModel: DashboardViewModel, modifier: Modifier = Modifier
             icon = Icons.AutoMirrored.Filled.DirectionsWalk,
             label = "Steps",
             value = state.steps,
-            target = STEPS_TARGET,
             unit = "steps",
             color = StepsGreen
         )
@@ -67,7 +65,6 @@ fun DashboardScreen(viewModel: DashboardViewModel, modifier: Modifier = Modifier
             icon = Icons.Filled.LocalFireDepartment,
             label = "Calories Burned",
             value = state.calories,
-            target = CALORIES_TARGET,
             unit = "kcal",
             color = CaloriesRed
         )
@@ -75,7 +72,6 @@ fun DashboardScreen(viewModel: DashboardViewModel, modifier: Modifier = Modifier
             icon = Icons.Filled.WaterDrop,
             label = "Water Intake",
             value = state.water,
-            target = WATER_TARGET,
             unit = "ml",
             color = WaterBlue
         )
@@ -87,7 +83,6 @@ private fun SummaryCard(
     icon: ImageVector,
     label: String,
     value: Int,
-    target: Int,
     unit: String,
     color: Color
 ) {
@@ -112,17 +107,6 @@ private fun SummaryCard(
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = color
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            LinearProgressIndicator(
-                progress = { (value.toFloat() / target).coerceIn(0f, 1f) },
-                modifier = Modifier.fillMaxWidth(),
-                color = color
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Target: %,d %s".format(target, unit),
-                style = MaterialTheme.typography.bodySmall
             )
         }
     }

@@ -17,14 +17,33 @@ class HealthRepository(private val dao: HealthRecordDao) {
         return dao.getById(id)
     }
 
+    // CREATE saves a new record
     suspend fun insert(record: HealthRecord) {
         dao.insert(record)
     }
 
+    // CREATE or UPDATE
+    suspend fun addToDate(record: HealthRecord) {
+        val existing = dao.getByDate(record.date)
+        if (existing == null) {
+            dao.insert(record)
+        } else {
+            dao.update(
+                existing.copy(
+                    steps = existing.steps + record.steps,
+                    calories = existing.calories + record.calories,
+                    water = existing.water + record.water
+                )
+            )
+        }
+    }
+
+    // UPDATE
     suspend fun update(record: HealthRecord) {
         dao.update(record)
     }
 
+    // DELETE
     suspend fun delete(record: HealthRecord) {
         dao.delete(record)
     }

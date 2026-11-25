@@ -96,7 +96,7 @@ class AddEditViewModel(
         )
 
         viewModelScope.launch {
-            if (current.id == 0) repository.insert(record) else repository.update(record)
+            if (current.id == 0) repository.addToDate(record) else repository.update(record)
             _uiState.update { it.copy(saved = true) }
         }
     }

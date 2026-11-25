@@ -10,10 +10,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
-const val STEPS_TARGET = 10000
-const val CALORIES_TARGET = 500
-const val WATER_TARGET = 2500
-
 data class DashboardUiState(
     val date: String = "",
     val steps: Int = 0,
